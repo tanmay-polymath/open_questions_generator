@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "next": "13.5.4",
+    "openai": "^4.11.1",
     "react": "^18",
     "react-dom": "^18",
-    "react-hot-toast": "^2.4.1"
+    "react-hot-toast": "^2.4.1",
+    "youtube-transcript": "^1.0.6"
   },
   "devDependencies": {
     "@types/node": "^20",
