@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import OpenAI from "openai"
 
-// export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic"
+export const runtime = "edge"
 
 export async function POST(request: NextRequest) {
   try {
