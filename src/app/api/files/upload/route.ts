@@ -20,12 +20,21 @@ export async function POST(request: NextRequest) {
     const bytes = await fileData.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    const path = join(process.cwd(),"public","tempFiles","currFile.pdf")
-    await writeFile(path, buffer)    
+    const textDecoder = new TextDecoder('utf-8');
+
+    // Convert the ArrayBuffer to a Uint8Array
+    const uint8Array = new Uint8Array(buffer);
+
+    // Decode the Uint8Array to text
+    const text = textDecoder.decode(uint8Array);
+
+    // Print the decoded text
+    console.log(text.toString());
 
     return new Response(
       JSON.stringify({
         success: true,
+        res: text
       })
     )
   } catch (error: any) {

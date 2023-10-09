@@ -61,7 +61,7 @@ export default function Home() {
               setCurrTab(2)
             }}
           >
-            Doc
+            Website
           </div>
           <div
             className = {`text-lg font-bold px-3 py-2 rounded-md cursor-pointer ${currTab === 3 ? "text-white bg-black":""} hover:text-white hover:bg-black`}
@@ -69,16 +69,16 @@ export default function Home() {
               setCurrTab(3)
             }}
           >
-            Website
-          </div>
-          <div
-            className = {`text-lg font-bold px-3 py-2 rounded-md cursor-pointer ${currTab === 4 ? "text-white bg-black":""} hover:text-white hover:bg-black`}
-            onClick = {() => {
-              setCurrTab(4)
-            }}
-          >
             Text
           </div>
+          {/* <div
+            className = {`text-lg font-bold px-3 py-2 rounded-md cursor-pointer ${currTab === 2 ? "text-white bg-black":""} hover:text-white hover:bg-black`}
+            onClick = {() => {
+              setCurrTab(2)
+            }}
+          >
+            Doc
+          </div> */}
         </div>
         {/* containers */}
         <div
@@ -86,9 +86,9 @@ export default function Home() {
         >
           {currTab === 0 && <YoutubeQuestions/>}
           {currTab === 1 && <PdfQuestions/>}
-          {currTab === 2 && <DocQuestions/>}
-          {currTab === 3 && <WebQuestions/>}
-          {currTab === 4 && <TextQuestions/>}
+          {currTab === 2 && <WebQuestions/>}
+          {currTab === 3 && <TextQuestions/>}
+          {/* {currTab === 2 && <DocQuestions/>} */}
         </div>
       </main>
     </>
