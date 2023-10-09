@@ -129,8 +129,6 @@ const YoutubeQuestions = () => {
 
             setLoading(true)
 
-            const tLen = contextArr.length
-
             const res = await Promise.all(
                 contextArr.map((val: string) => {
                     return fetch("/api/ai/getQuestions",{
@@ -156,26 +154,6 @@ const YoutubeQuestions = () => {
                 const tArr = parseQuestions(data.message)
                 qArr = [...qArr, ...tArr]
             }
-
-            // for(let i = 0 ; i < tLen ; i++){
-            //     const res = await fetch("/api/ai/getQuestions",{
-            //         method: 'post',
-            //         body: JSON.stringify({
-            //             data: contextArr[i]
-            //         })
-            //     })
-
-            //     const data = await res.json();
-            //     // console.log(data.message);
-
-            //     if(!data.success){
-            //         toast.error("Failed to generate questions")
-            //         return;
-            //     }
-
-            //     const tArr = parseQuestions(data.message)
-            //     qArr = [...qArr, ...tArr]
-            // }
 
             setLoading(false)
 
@@ -229,7 +207,7 @@ const YoutubeQuestions = () => {
                 </button>
                 {/* Questions */}
                 <div
-                    className = "border-2 border-black border-dashed rounded-md p-1 w-full mt-5 flex flex-col w-full gap-4"
+                    className = "border-2 border-black border-dashed rounded-md p-1 mt-5 flex flex-col w-full gap-4"
                 >
                     {genQuestions.map((val:Question, idx:number) => (
                         <QuestionCard
