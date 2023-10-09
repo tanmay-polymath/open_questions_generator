@@ -1,6 +1,6 @@
 'use client'
 
-import React,{useState, useRef} from 'react'
+import React,{useState} from 'react'
 import toast from 'react-hot-toast';
 
 import { Question } from '@/utils/types';
@@ -20,7 +20,7 @@ const PdfQuestions = () => {
     try {
 
         if(!currFile){
-            toast.error("Upload a file first")
+            toast.error("Add a file first")
             return;
         }
 
@@ -29,26 +29,30 @@ const PdfQuestions = () => {
 
         setUploadDoc(true)
 
-        const res = await fetch("/api/files/upload", {
+        const res = await fetch("https://langchainchatbot-64e6d01e9116.herokuapp.com/PDFTranscript", {
             method: 'post',
             body: fileData
         })
 
         const data = await res.json();
+        console.log(data);
 
         setUploadDoc(false)
 
-        if(!data.success){
-            toast.error("failed to upload file")
-            return
+        if(!data.file_text){
+            toast.error("No text extracted from pdf")
+            return;
         }
 
-        toast.success("File uploaded")
+        const fileText: string = data.file_text.reduce((acc:string,arr: string) => {
+            return `${acc} ${arr}`
+        },"")
 
-        const tRes = await fetch("/api/files/read")
-        const tdata = await tRes.json();
+        console.log(fileText);
 
-        console.log(tdata);
+        toast.success("PDF parsed")
+        setDocData(fileText)
+
         
     } catch (error) {
         console.log('file upload error');
@@ -194,22 +198,30 @@ const PdfQuestions = () => {
         >
             {uploadDoc? "Uploading...":"Upload PDF"}
         </button>
-        <div
-            className = "mt-7"
-        >
-            <button
-                className = "text-lg font-bold bg-black text-white px-3 py-2 rounded-md mt-2 hover:bg-slate-800"
-                onClick = {generateQuestions}
-            >
-                {loading? "Generating...":"Generate Questions"}
-            </button>
-            {/* Questions */}
+        {docData.length > 0 &&
             <div
-                className = "border-2 border-black border-dashed rounded-md p-1 w-full mt-5"
+                className = "mt-7"
             >
-
+                <button
+                    className = "text-lg font-bold bg-black text-white px-3 py-2 rounded-md mt-2 hover:bg-slate-800"
+                    onClick = {generateQuestions}
+                >
+                    {loading? "Generating...":"Generate Questions"}
+                </button>
+                {/* Questions */}
+                <div
+                    className = "border-2 border-black border-dashed rounded-md p-1 mt-5 flex flex-col w-full gap-4"
+                >
+                    {genQuestions.map((val:Question, idx:number) => (
+                        <QuestionCard
+                            question={val}
+                            key = {idx}
+                        />
+                    ))
+                    }
+                </div>
             </div>
-        </div>
+        }
     </div>
   )
 }
