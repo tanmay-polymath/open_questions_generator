@@ -9,14 +9,46 @@ import QuestionCard from './QuestionCard';
 
 const WebQuestions = () => {
 
-  const [parsingVideo, setParsingVideo] = useState<boolean>(false);
+  const [scrapingData, setScrapingData] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false)
   const [genQuestions,setGenQuestions] = useState<Question[]>([])
+  const [webData,setWebData] = useState<string>("")
 
   const linkRef = useRef<HTMLInputElement>(null)
 
-  const inputHandler = () => {
+  const inputHandler = async () => {
+    try {
+        const inpVal = linkRef.current!.value.trim()
 
+        if(inpVal.length === 0){
+            toast.error("Please enter a website Link")
+        }
+
+        setScrapingData(true)
+
+        const res = await fetch(`https://langchainchatbot-64e6d01e9116.herokuapp.com/getURLTranscript?web_url=${inpVal}`,{
+            method: 'post',
+        })
+
+        const data = await res.json();
+
+        setScrapingData(false)
+
+        if(!data.web_text || data.web_text.trim().length === 0){
+            toast.error("No data to scrape on the website")
+            return;
+        }
+
+        console.log(data.web_text);
+        toast.success("Website Scraped")  
+        setWebData(data.web_text.trim())            
+        
+    } catch (error) {
+        toast.error('Something went wrong')
+        console.log('scraping front error');
+        console.log(error);
+        setScrapingData(false)
+    }
   }
 
   const parseQuestions = (inp: string): Question[] => {
@@ -72,12 +104,12 @@ const WebQuestions = () => {
     try {
         //   const count = qnoRef.current!.value
 
-        const trsLen = vidTranscript.length
+        const trsLen = webData.length
         const contextArr: string[] = [];
         let qArr: Question[] = []
 
-        for(let i = 0 ; i < trsLen; i += 1000){
-            contextArr.push(vidTranscript.slice(i,i+1000));
+        for(let i = 0 ; i < trsLen; i += 1500){
+            contextArr.push(webData.slice(i,i+1500));
         }
 
         console.log("contextArr");
@@ -149,24 +181,34 @@ const WebQuestions = () => {
             className = "text-lg font-bold bg-black text-white px-3 py-2 rounded-md mt-2 hover:bg-slate-800"
             onClick = {inputHandler}
         >
-            {parsingVideo? "Parsing...":"Parse Link"}
+            {scrapingData? "Parsing...":"Parse Link"}
         </button>
-        <div
-            className = "mt-7"
-        >
-            <button
-                className = "text-lg font-bold bg-black text-white px-3 py-2 rounded-md mt-2 hover:bg-slate-800"
-                onClick = {inputHandler}
-            >
-                {loading? "Generating...":"Generate Questions"}
-            </button>
-            {/* Questions */}
+        
+        {/* Questions */}
+        {webData.length > 0 &&
             <div
-                className = "border-2 border-black border-dashed rounded-md p-1 w-full mt-5"
+                className = "mt-7"
             >
-
+                <button
+                    className = "text-lg font-bold bg-black text-white px-3 py-2 rounded-md mt-2 hover:bg-slate-800"
+                    onClick = {generateQuestions}
+                >
+                    {loading? "Generating...":"Generate Questions"}
+                </button>
+                {/* Questions */}
+                <div
+                    className = "border-2 border-black border-dashed rounded-md p-1 mt-5 flex flex-col w-full gap-4"
+                >
+                    {genQuestions.map((val:Question, idx:number) => (
+                        <QuestionCard
+                            question={val}
+                            key = {idx}
+                        />
+                    ))
+                    }
+                </div>
             </div>
-        </div>
+        }
     </div>
   )
 }

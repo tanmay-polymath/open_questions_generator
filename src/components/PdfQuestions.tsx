@@ -1,6 +1,7 @@
 'use client'
 
 import React,{useState, useRef} from 'react'
+import toast from 'react-hot-toast';
 
 import { Question } from '@/utils/types';
 
@@ -8,12 +9,53 @@ import QuestionCard from './QuestionCard';
 
 const PdfQuestions = () => {
 
-  const [uploadDoc, setuploadDoc] = useState<boolean>(false);
+  const [uploadDoc, setUploadDoc] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false)
-  const docRef = useRef<HTMLInputElement>(null)
+  const [currFile, setCurrFile] = useState<File>()
   const [genQuestions,setGenQuestions] = useState<Question[]>([])
+  const [docData, setDocData] = useState<string>("")
 
-  const inputHandler = () => {
+  const uploadHandler = async () => {
+
+    try {
+
+        if(!currFile){
+            toast.error("Upload a file first")
+            return;
+        }
+
+        const fileData = new FormData();
+        fileData.set('file',currFile)
+
+        setUploadDoc(true)
+
+        const res = await fetch("/api/files/upload", {
+            method: 'post',
+            body: fileData
+        })
+
+        const data = await res.json();
+
+        setUploadDoc(false)
+
+        if(!data.success){
+            toast.error("failed to upload file")
+            return
+        }
+
+        toast.success("File uploaded")
+
+        const tRes = await fetch("/api/files/read")
+        const tdata = await tRes.json();
+
+        console.log(tdata);
+        
+    } catch (error) {
+        console.log('file upload error');
+        console.log(error);
+        toast.error("Something went wrong")
+        setUploadDoc(false)
+    }
 
   }
 
@@ -70,12 +112,12 @@ const PdfQuestions = () => {
     try {
         //   const count = qnoRef.current!.value
 
-        const trsLen = vidTranscript.length
+        const trsLen = docData.length
         const contextArr: string[] = [];
         let qArr: Question[] = []
 
         for(let i = 0 ; i < trsLen; i += 1000){
-            contextArr.push(vidTranscript.slice(i,i+1000));
+            contextArr.push(docData.slice(i,i+1000));
         }
 
         console.log("contextArr");
@@ -140,14 +182,15 @@ const PdfQuestions = () => {
                 type= "file" 
                 id = "docInp" 
                 accept = ".pdf"
-                ref = {docRef}
+                // ref = {docRef}
+                onChange={(e) => {setCurrFile(e.target.files?.[0])}}
                 className = "w-full border-2 border-black rounded-md text-xl p-2"
             />
 
         </div>
         <button
             className = "text-lg font-bold bg-black text-white px-3 py-2 rounded-md mt-2 hover:bg-slate-800"
-            onClick = {inputHandler}
+            onClick = {uploadHandler}
         >
             {uploadDoc? "Uploading...":"Upload PDF"}
         </button>
@@ -156,7 +199,7 @@ const PdfQuestions = () => {
         >
             <button
                 className = "text-lg font-bold bg-black text-white px-3 py-2 rounded-md mt-2 hover:bg-slate-800"
-                onClick = {inputHandler}
+                onClick = {generateQuestions}
             >
                 {loading? "Generating...":"Generate Questions"}
             </button>
