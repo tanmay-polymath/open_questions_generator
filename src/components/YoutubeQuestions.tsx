@@ -3,6 +3,8 @@
 import React, {useRef, useState} from 'react'
 import toast from 'react-hot-toast';
 
+import QuestionCard from './QuestionCard';
+
 import { Question } from '@/utils/types';
 
 const YoutubeQuestions = () => {
@@ -129,15 +131,21 @@ const YoutubeQuestions = () => {
 
             const tLen = contextArr.length
 
-            for(let i = 0 ; i < tLen ; i++){
-                const res = await fetch("/api/ai/getQuestions",{
-                    method: 'post',
-                    body: JSON.stringify({
-                        data: contextArr[i]
+            const res = await Promise.all(
+                contextArr.map((val: string) => {
+                    return fetch("/api/ai/getQuestions",{
+                        method: 'post',
+                        body: JSON.stringify({
+                            data: val
+                        })
                     })
                 })
+            )
 
-                const data = await res.json();
+            const qLen = res.length
+
+            for(let i = 0 ; i < qLen ; i++){
+                const data = await res[i].json();
                 // console.log(data.message);
 
                 if(!data.success){
@@ -149,6 +157,25 @@ const YoutubeQuestions = () => {
                 qArr = [...qArr, ...tArr]
             }
 
+            // for(let i = 0 ; i < tLen ; i++){
+            //     const res = await fetch("/api/ai/getQuestions",{
+            //         method: 'post',
+            //         body: JSON.stringify({
+            //             data: contextArr[i]
+            //         })
+            //     })
+
+            //     const data = await res.json();
+            //     // console.log(data.message);
+
+            //     if(!data.success){
+            //         toast.error("Failed to generate questions")
+            //         return;
+            //     }
+
+            //     const tArr = parseQuestions(data.message)
+            //     qArr = [...qArr, ...tArr]
+            // }
 
             setLoading(false)
 
@@ -202,9 +229,15 @@ const YoutubeQuestions = () => {
                 </button>
                 {/* Questions */}
                 <div
-                    className = "border-2 border-black border-dashed rounded-md p-1 w-full mt-5"
+                    className = "border-2 border-black border-dashed rounded-md p-1 w-full mt-5 flex flex-col w-full gap-4"
                 >
-
+                    {genQuestions.map((val:Question, idx:number) => (
+                        <QuestionCard
+                            question={val}
+                            key = {idx}
+                        />
+                    ))
+                    }
                 </div>
             </div>
         }
