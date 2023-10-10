@@ -28,6 +28,7 @@ const WebQuestions = () => {
 
         const res = await fetch(`https://langchainchatbot-64e6d01e9116.herokuapp.com/getURLTranscript?web_url=${inpVal}`,{
             method: 'post',
+            cache: 'no-store'
         })
 
         const data = await res.json();
